@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kajian Pemilihan Kipas Tangan</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: #46178f; /* Kahoot Purple */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+.kahoot-container {
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+    overflow: hidden;
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Progress Bar */
+.progress-container {
+    width: 100%;
+    background: #e0e0e0;
+    height: 12px;
+}
+.progress-bar {
+    height: 100%;
+    background: #108510;
+    width: 0%;
+    transition: width 0.4s ease;
+}
+
+/* Screen Wrapper */
+.screen {
+    display: none;
+    padding: 40px 30px;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+    animation: fadeIn 0.5s ease;
+}
+.screen.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Typography */
+h1.title {
+    font-size: 32px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+.subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+.question-text {
+    font-size: 26px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #222;
+}
+.section-badge {
+    align-self: center;
+    background: #f2f2f2;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* Kahoot Grid Layout for Answers */
+.kahoot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 100%);
+    gap: 15px;
+    margin-top: auto;
+}
+/* For 2-choice inputs */
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+/* For 3 or more inputs */
+.grid-4 { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 600px) {
+    .grid-2, .grid-4 { grid-template-columns: 1fr; }
+}
+
+/* Kahoot Buttons Styling */
+.kahoot-btn {
+    position: relative;
+    border: none;
+    border-radius: 8px;
+    padding: 25px 20px;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+.kahoot-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+}
+.kahoot-btn span.shape {
+    font-size: 24px;
+    margin-right: 15px;
+    display: inline-block;
+    width: 35px;
+    text-align: center;
+}
+
+/* Kahoot Color Themes */
+.btn-red { background: #e21b3c; }
+.btn-blue { background: #1368ce; }
+.btn-yellow { background: #d89e00; }
+.btn-green { background: #26890c; }
+.btn-orange { background: #ff781f; }
+
+/* Likert 1-5 Row (Kahoot Style) */
+.likert-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: auto;
+}
+@media (max-width: 600px) {
+    .likert-container { flex-direction: column; }
+}
+.likert-btn {
+    width: 100%;
+    padding: 16px 12px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: #4f46e5;
+    color: #fff;
+
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
+}
+.likert-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+}
+.likert-label {
+    font-size: 20px;
+    display: block;
+    margin-top: 5px;
+    opacity: 0.9;
+}
+.likert-1 { background: #c0392b; }
+.likert-2 { background: #e67e22; }
+.likert-3 { background: #95a5a6; }
+.likert-4 { background: #2ecc71; }
+.likert-5 { background: #27ae60; }
+
+/* Navigation & Utility */
+.start-btn {
+    background: #1368ce;
+    color: white;
+    font-size: 22px;
+    padding: 18px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #094797;
+    width: 100%;
+}
+.start-btn:hover { background: #1a76e6; }
+
+#status {
+    font-size: 20px;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+}
+.success { color: #26890c; }
+.error { color: #e21b3c; }
+
+/* Hide original inputs securely to retain script compatibility */
+.hidden-inputs {
+    display: none;
+}
+</style>
+</head>
+<body>
+
+<!-- INPUT TERSEMBUNYI UNTUK MENGEKALKAN LOGIK ASAL JAVASCRIPT -->
+<div class="hidden-inputs">
+    <select id="jantina"><option value=""></option><option>Lelaki</option><option>Perempuan</option></select>
+    <select id="umur"><option value=""></option><option>18–20 tahun</option><option>21–23 tahun</option><option>24 tahun ke atas</option></select>
+    <select id="fakulti"><option value=""></option><option>FEPDT</option><option>Lain-lain</option></select>
+    <select id="tahun"><option value=""></option><option>Tahun 1</option><option>Tahun 2</option><option>Tahun 3</option><option>Tahun 4</option></select>
+    <select id="milikiKipas"><option value=""></option><option>Ya</option><option>Tidak</option></select>
+    <select id="kekerapan"><option value=""></option><option>Setiap hari</option><option>Beberapa kali seminggu</option><option>Jarang</option><option>Tidak pernah</option></select>
+
+    <!-- Radio Bahagian B -->
+    <input type="radio" name="harga1" value="1"><input type="radio" name="harga1" value="2"><input type="radio" name="harga1" value="3"><input type="radio" name="harga1" value="4"><input type="radio" name="harga1" value="5">
+    <input type="radio" name="harga2" value="1"><input type="radio" name="harga2" value="2"><input type="radio" name="harga2" value="3"><input type="radio" name="harga2" value="4"><input type="radio" name="harga2" value="5">
+    <input type="radio" name="harga3" value="1"><input type="radio" name="harga3" value="2"><input type="radio" name="harga3" value="3"><input type="radio" name="harga3" value="4"><input type="radio" name="harga3" value="5">
+    <input type="radio" name="harga4" value="1"><input type="radio" name="harga4" value="2"><input type="radio" name="harga4" value="3"><input type="radio" name="harga4" value="4"><input type="radio" name="harga4" value="5">
+    <input type="radio" name="ciri1" value="1"><input type="radio" name="ciri1" value="2"><input type="radio" name="ciri1" value="3"><input type="radio" name="ciri1" value="4"><input type="radio" name="ciri1" value="5">
+    <input type="radio" name="ciri2" value="1"><input type="radio" name="ciri2" value="2"><input type="radio" name="ciri2" value="3"><input type="radio" name="ciri2" value="4"><input type="radio" name="ciri2" value="5">
+    <input type="radio" name="ciri3" value="1"><input type="radio" name="ciri3" value="2"><input type="radio" name="ciri3" value="3"><input type="radio" name="ciri3" value="4"><input type="radio" name="ciri3" value="5">
+    <input type="radio" name="ciri4" value="1"><input type="radio" name="ciri4" value="2"><input type="radio" name="ciri4" value="3"><input type="radio" name="ciri4" value="4"><input type="radio" name="ciri4" value="5">
+    <input type="radio" name="kualiti1" value="1"><input type="radio" name="kualiti1" value="2"><input type="radio" name="kualiti1" value="3"><input type="radio" name="kualiti1" value="4"><input type="radio" name="kualiti1" value="5">
+    <input type="radio" name="kualiti2" value="1"><input type="radio" name="kualiti2" value="2"><input type="radio" name="kualiti2" value="3"><input type="radio" name="kualiti2" value="4"><input type="radio" name="kualiti2" value="5">
+    <input type="radio" name="kualiti3" value="1"><input type="radio" name="kualiti3" value="2"><input type="radio" name="kualiti3" value="3"><input type="radio" name="kualiti3" value="4"><input type="radio" name="kualiti3" value="5">
+    <input type="radio" name="kualiti4" value="1"><input type="radio" name="kualiti4" value="2"><input type="radio" name="kualiti4" value="3"><input type="radio" name="kualiti4" value="4"><input type="radio" name="kualiti4" value="5">
+    <input type="radio" name="rakan1" value="1"><input type="radio" name="rakan1" value="2"><input type="radio" name="rakan1" value="3"><input type="radio" name="rakan1" value="4"><input type="radio" name="rakan1" value="5">
+    <input type="radio" name="rakan2" value="1"><input type="radio" name="rakan2" value="2"><input type="radio" name="rakan2" value="3"><input type="radio" name="rakan2" value="4"><input type="radio" name="rakan2" value="5">
+    <input type="radio" name="rakan3" value="1"><input type="radio" name="rakan3" value="2"><input type="radio" name="rakan3" value="3"><input type="radio" name="rakan3" value="4"><input type="radio" name="rakan3" value="5">
+    <input type="radio" name="rakan4" value="1"><input type="radio" name="rakan4" value="2"><input type="radio" name="rakan4" value="3"><input type="radio" name="rakan4" value="4"><input type="radio" name="rakan4" value="5">
+    <input type="radio" name="dv1" value="1"><input type="radio" name="dv1" value="2"><input type="radio" name="dv1" value="3"><input type="radio" name="dv1" value="4"><input type="radio" name="dv1" value="5">
+    <input type="radio" name="dv2" value="1"><input type="radio" name="dv2" value="2"><input type="radio" name="dv2" value="3"><input type="radio" name="dv2" value="4"><input type="radio" name="dv2" value="5">
+    <input type="radio" name="dv3" value="1"><input type="radio" name="dv3" value="2"><input type="radio" name="dv3" value="3"><input type="radio" name="dv3" value="4"><input type="radio" name="dv3" value="5">
+    <input type="radio" name="dv4" value="1"><input type="radio" name="dv4" value="2"><input type="radio" name="dv4" value="3"><input type="radio" name="dv4" value="4"><input type="radio" name="dv4" value="5">
+</div>
+
+<div class="kahoot-container">
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- SCREEN 0: START -->
+    <div class="screen active" id="screen-start">
+        <div>
+            <h1 class="title">Kajian Pemilihan Kipas Tangan</h1>
+            <p class="subtitle">Sila jawab semua soalan dengan jujur gaya Kahoot! 🚀</p>
+        </div>
+        <button class="start-btn" onclick="nextScreen(1)">Mula Kuiz / Kajian</button>
+    </div>
+
+    <!-- ================= BAHAGIAN A ================= -->
+    <!-- JANTINA -->
+    <div class="screen" id="screen-1">
+        <div class="section-badge">Bahagian A: Demografi</div>
+        <div class="question-text">Jantina</div>
+        <div class="kahoot-grid grid-2">
+            <button class="kahoot-btn btn-red" onclick="selectDropdown('jantina', 'Lelaki', 2)"><span class="shape">▲</span> Lelaki</button>
+            <button class="kahoot-btn btn-blue" onclick="selectDropdown('jantina', 'Perempuan', 2)"><span class="shape">◆</span> Perempuan</button>
+        </div>
+    </div>
+
+    <!-- UMUR -->
+    <div class="screen" id="screen-2">
+        <div class="section-badge">Bahagian A: Demografi</div>
+        <div class="question-text">Umur</div>
+        <div class="kahoot-grid grid-4">
+            <button class="kahoot-btn btn-red" onclick="selectDropdown('umur', '18–20 tahun', 3)"><span class="shape">▲</span> 18–20 tahun</button>
+            <button class="kahoot-btn btn-blue" onclick="selectDropdown('umur', '21–23 tahun', 3)"><span class="shape">◆</span> 21–23 tahun</button>
+            <button class="kahoot-btn btn-yellow" onclick="selectDropdown('umur', '24 tahun ke atas', 3)"><span class="shape">●</span> 24 tahun ke atas</button>
+        </div>
+    </div>
+
+    <!-- FAKULTI -->
+    <div class="screen" id="screen-3">
+        <div class="section-badge">Bahagian A: Demografi</div>
+        <div class="question-text">Fakulti</div>
+        <div class="kahoot-grid grid-2">
+            <button class="kahoot-btn btn-red" onclick="selectDropdown('fakulti', 'FEPDT', 4)"><span class="shape">▲</span> FEPDT</button>
+            <button class="kahoot-btn btn-blue" onclick="selectDropdown('fakulti', 'Lain-lain', 4)"><span class="shape">◆</span> Lain-lain</button>
+        </div>
+    </div>
+
+    <!-- TAHUN PENGAJIAN -->
+    <div class="screen" id="screen-4">
+        <div class="section-badge">Bahagian A: Demografi</div>
+        <div class="question-text">Tahun Pengajian</div>
+        <div class="kahoot-grid grid-4">
+            <button class="kahoot-btn btn-red" onclick="selectDropdown('tahun', 'Tahun 1', 5)"><span class="shape">▲</span> Tahun 1</button>
+            <button class="kahoot-btn btn-blue" onclick="selectDropdown('tahun', 'Tahun 2', 5)"><span class="shape">◆</span> Tahun 2</button>
+            <button class="kahoot-btn btn-yellow" onclick="selectDropdown('tahun', 'Tahun 3', 5)"><span class="shape">●</span> Tahun 3</button>
+            <button class="kahoot-btn btn-green" onclick="selectDropdown('tahun', 'Tahun 4', 5)"><span class="shape">■</span> Tahun 4</button>
+        </div>
+    </div>
+
+    <!-- MILIKI KIPAS -->
+    <div class="screen" id="screen-5">
+        <div class="section-badge">Bahagian A: Demografi</div>
+        <div class="question-text">Adakah anda memiliki kipas tangan?</div>
+        <div class="kahoot-grid grid-2">
+            <button class="kahoot-btn btn-green" onclick="selectDropdown('milikiKipas', 'Ya', 6)"><span class="shape">■</span> Ya</button>
+            <button class="kahoot-btn btn-red" onclick="selectDropdown('milikiKipas', 'Tidak', 6)"><span class="shape">▲</span> Tidak</button>
+        </div>
+    </div>
+
+    <!-- KEKERAPAN -->
+    <div class="screen" id="screen-6">
+        <div class="section-badge">Bahagian A: Demografi</div>
+        <div class="question-text">Berapa kerap anda menggunakan kipas tangan?</div>
+        <div class="kahoot-grid grid-4">
+            <button class="kahoot-btn btn-red" onclick="selectDropdown('kekerapan', 'Setiap hari', 7)"><span class="shape">▲</span> Setiap hari</button>
+            <button class="kahoot-btn btn-blue" onclick="selectDropdown('kekerapan', 'Beberapa kali seminggu', 7)"><span class="shape">◆</span> Beberapa kali seminggu</button>
+            <button class="kahoot-btn btn-yellow" onclick="selectDropdown('kekerapan', 'Jarang', 7)"><span class="shape">●</span> Jarang</button>
+            <button class="kahoot-btn btn-green" onclick="selectDropdown('kekerapan', 'Tidak pernah', 7)"><span class="shape">■</span> Tidak pernah</button>
+        </div>
+    </div>
+
+
+    <!-- ================= BAHAGIAN B ================= -->
+    <!-- Di Janji Menggunakan Fungsi JS Dinamik bagi menjimatkan ruang kod tetapi mengekalkan elemen Kahoot -->
+    <div class="screen" id="screen-b">
+        <div class="section-badge" id="b-badge">Bahagian B</div>
+        <div class="question-text" id="b-question">Pernyataan Bahagian B</div>
+        
+        <div class="likert-container">
+            <button class="likert-btn likert-5" onclick="selectLikert(5)">
+                <span class="likert-label">Sangat Setuju</span>
+            </button>
+            
+            <button class="likert-btn likert-4" onclick="selectLikert(4)">
+                <span class="likert-label">Setuju</span>
+            </button>
+            
+            <button class="likert-btn likert-3" onclick="selectLikert(3)">
+                <span class="likert-label">Neutral</span>
+            </button>
+            
+            <button class="likert-btn likert-2" onclick="selectLikert(2)">
+                <span class="likert-label">Tidak Setuju</span>
+            </button>
+            
+            <button class="likert-btn likert-1" onclick="selectLikert(1)">
+                <span class="likert-label">Sangat Tidak Setuju</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN END / SUBMIT -->
+    <div class="screen" id="screen-end">
+        <div>
+            <h1 class="title">Tahniah! 🎉</h1>
+            <p class="subtitle">Semua soalan telah lengkap diisi.</p>
+        </div>
+        <div>
+            <button class="start-btn" style="background:#26890c; box-shadow:0 5px 0 #105a04;" onclick="submitForm()">Hantar Jawapan</button>
+            <div id="status"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Array senarai soalan Bahagian B untuk diproses secara gelung (looping) dinamik skrin
+const siriBahagianB = [
+    { name: "harga1", text: "Harga kipas tangan mempengaruhi pilihan saya." },
+    { name: "harga2", text: "Saya memilih kipas tangan yang mempunyai harga berpatutan." },
+    { name: "harga3", text: "Saya akan membandingkan harga sebelum membeli kipas tangan." },
+    { name: "harga4", text: "Saya sanggup membeli kipas tangan yang lebih mahal jika kualitinya lebih baik." },
+    { name: "ciri1", text: "Kekuatan tiupan angin mempengaruhi pilihan saya." },
+    { name: "ciri2", text: "Jangka hayat bateri merupakan faktor penting." },
+    { name: "ciri3", text: "Saiz dan berat kipas tangan mempengaruhi pilihan saya." },
+    { name: "ciri4", text: "Saya memilih kipas tangan yang mempunyai beberapa tahap kelajuan." },
+    { name: "kualiti1", text: "Saya memilih kipas tangan yang tahan lama." },
+    { name: "kualiti2", text: "Kualiti bahan pembuatan mempengaruhi pilihan saya." },
+    { name: "kualiti3", text: "Saya lebih yakin membeli kipas tangan daripada jenama yang berkualiti." },
+    { name: "kualiti4", text: "Saya mementingkan prestasi kipas tangan berbanding rupa bentuknya." },
+    { name: "rakan1", text: "Cadangan rakan mempengaruhi pilihan saya." },
+    { name: "rakan2", text: "Saya mendapatkan pendapat rakan sebelum membeli kipas tangan." },
+    { name: "rakan3", text: "Saya cenderung membeli kipas tangan yang digunakan oleh rakan." },
+    { name: "rakan4", text: "Ulasan daripada pengguna lain mempengaruhi keputusan saya." },
+    { name: "dv1", text: "Saya berpuas hati dengan kipas tangan yang saya pilih." },
+    { name: "dv2", text: "Saya yakin pilihan kipas tangan saya memenuhi keperluan saya." },
+    { name: "dv3", text: "Saya akan memilih semula jenama atau model yang sama pada masa akan datang." },
+    { name: "dv4", text: "Saya akan mencadangkan kipas tangan pilihan saya kepada orang lain." }
+];
+
+let indeksB = 0;
+const jumlahSoalanMaksimum = 6 + siriBahagianB.length; 
+
+function kemasKiniProgressBar(noSoalan) {
+    let peratus = (noSoalan / jumlahSoalanMaksimum) * 100;
+    document.getElementById("progressBar").style.width = peratus + "%";
+}
+
+function nextScreen(noSkrin) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    
+    if(noSkrin === 'b') {
+        document.getElementById('screen-b').classList.add('active');
+        bukaSoalanB();
+    } else if (noSkrin === 'end') {
+        document.getElementById('screen-end').classList.add('active');
+        kemasKiniProgressBar(jumlahSoalanMaksimum);
+    } else {
+        document.getElementById('screen-' + noSkrin).classList.add('active');
+        kemasKiniProgressBar(noSkrin - 1);
+    }
+}
+
+function selectDropdown(idElemen, nilai, skrinSeterusnya) {
+    document.getElementById(idElemen).value = nilai;
+    if(skrinSeterusnya === 7) {
+        nextScreen('b');
+    } else {
+        nextScreen(skrinSeterusnya);
+    }
+}
+
+function bukaSoalanB() {
+    if(indeksB < siriBahagianB.length) {
+        kemasKiniProgressBar(6 + indeksB);
+        document.getElementById("b-badge").innerText = `Bahagian B (${indeksB + 1}/${siriBahagianB.length})`;
+        document.getElementById("b-question").innerText = siriBahagianB[indeksB].text;
+    } else {
+        nextScreen('end');
+    }
+}
+
+function selectLikert(nilai) {
+    let namaRadio = siriBahagianB[indeksB].name;
+    let radioCari = document.querySelector(`input[name="${namaRadio}"][value="${nilai}"]`);
+    if(radioCari) radioCari.checked = true;
+    
+    indeksB++;
+    bukaSoalanB();
+}
+
+/* ================= JAVASCRIPT ASAL (DIKEKALKAN) ================= */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzevLXexNWhImmE1iQG6xJyykQvZYbZh60_JPqPyhK4ArqZWk4qvImOPDO_iUBeEK1AcQ/exec";
+
+function getRadio(name){
+    const selected = document.querySelector(`input[name="${name}"]:checked`);
+    return selected ? selected.value : "";
+}
+
+function submitForm(){
+    document.getElementById("status").innerHTML = "⏳ Sedang menghantar...";
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            jantina: document.getElementById("jantina").value,
+            umur: document.getElementById("umur").value,
+            fakulti: document.getElementById("fakulti").value,
+            tahun: document.getElementById("tahun").value,
+            milikiKipas: document.getElementById("milikiKipas").value,
+            kekerapan: document.getElementById("kekerapan").value,
+            harga1: getRadio("harga1"),
+            harga2: getRadio("harga2"),
+            harga3: getRadio("harga3"),
+            harga4: getRadio("harga4"),
+            ciri1: getRadio("ciri1"),
+            ciri2: getRadio("ciri2"),
+            ciri3: getRadio("ciri3"),
+            ciri4: getRadio("ciri4"),
+            kualiti1: getRadio("kualiti1"),
+            kualiti2: getRadio("kualiti2"),
+            kualiti3: getRadio("kualiti3"),
+            kualiti4: getRadio("kualiti4"),
+            rakan1: getRadio("rakan1"),
+            rakan2: getRadio("rakan2"),
+            rakan3: getRadio("rakan3"),
+            rakan4: getRadio("rakan4"),
+            dv1: getRadio("dv1"),
+            dv2: getRadio("dv2"),
+            dv3: getRadio("dv3"),
+            dv4: getRadio("dv4")
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success){
+            document.getElementById("status").className = "success";
+            document.getElementById("status").innerHTML = "✅ Terima kasih. Jawapan anda berjaya direkodkan.";
+        }else{
+            document.getElementById("status").className = "error";
+            document.getElementById("status").innerHTML = "❌ " + data.error;
+        }
+    })
+    .catch(error => {
+        document.getElementById("status").className = "error";
+        document.getElementById("status").innerHTML = "❌ " + error;
+        console.error(error);
+    });
+}
+</script>
+</body>
+</html>
